@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fun Lie Detector</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #0b1120;
+      border-radius: 16px;
+      padding: 24px;
+      width: 95%;
+      max-width: 480px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid #1f2937;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      color: #38bdf8;
+      text-align: center;
+    }
+    p.sub {
+      margin: 0 0 16px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+    label {
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      display: block;
+      margin-bottom: 6px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 10px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      background: #22c55e;
+      color: #022c22;
+      cursor: pointer;
+    }
+    button:hover {
+      filter: brightness(1.1);
+    }
+    .result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 0.95rem;
+      white-space: pre-line;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      margin-top: 4px;
+    }
+    .truth { background:#064e3b; color:#a7f3d0; }
+    .maybe { background:#78350f; color:#fed7aa; }
+    .lie { background:#7f1d1d; color:#fecaca; }
+    .footer {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧪 Fun Lie Detector</h1>
+    <p class="sub">
+      Typing ke base pe ek <b>masti wala</b> verdict.  
+      Science nahi, sirf timepass 😄
+    </p>
+
+    <label for="answer">Apna answer yahan likho:</label>
+    <textarea id="answer" placeholder="Sach sach likhna hai... shayad 😏"></textarea>
+
+    <button onclick="analyze()">CHECK RESULT</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+
+    <p class="footer">
+      Disclaimer: Ye sirf fun project hai, real lie detector nahi 🙏
+    </p>
+  </div>
+
+  <script>
+    function analyze() {
+      const txt = document.getElementById("answer").value.trim();
+      const res = document.getElementById("result");
+
+      if (!txt) {
+        res.style.display = "block";
+        res.innerHTML = "Pehle kuch likh toh do 😅";
+        return;
+      }
+
+      // basic analysis
+      const lower = txt.toLowerCase();
+      const words = txt.split(/\s+/).filter(Boolean).length;
+
+      const hesitationWords = [
+        "maybe", "i think", "not sure", "i don't know",
+        "idk", "shayad", "kya pata", "ho sakta", "shyd"
+      ];
+
+      let hesitationCount = 0;
+      hesitationWords.forEach(w => {
+        if (lower.includes(w)) hesitationCount++;
+      });
+
+      let score = 0;
+
+      // very short or very long answer
+      if (words <= 3) score += 20;
+      else if (words > 40) score += 10;
+
+      // hesitation words
+      score += hesitationCount * 15;
+
+      // ALL CAPS ya bohot zyada ! ?
+      if (txt === txt.toUpperCase() && words > 2) score += 15;
+      const exclam = (txt.match(/!/g) || []).length;
+      const ques = (txt.match(/\?/g) || []).length;
+      if (exclam + ques > 4) score += 10;
+
+      let verdict = "";
+      let tagClass = "";
+
+      if (score < 20) {
+        verdict = "Lagta hai tum kaafi sachche lag rahe ho.\nScore: " + score;
+        tagClass = "truth";
+      } else if (score < 40) {
+        verdict = "Thoda doubtful ho… mix of sach & jugaaḍ 😏\nScore: " + score;
+        tagClass = "maybe";
+      } else {
+        verdict = "Hmm… system bol raha hai jhooth ka chance zyada hai 😈\nScore: " + score;
+        tagClass = "lie";
+      }
+
+      res.style.display = "block";
+      res.innerHTML = verdict + "\n\n" +
+        `<span class="tag ${tagClass}">Fun Verdict Only</span>`;
+    }
+  </script>
+</body>
+</html>
